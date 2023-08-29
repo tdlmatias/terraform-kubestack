@@ -43,6 +43,11 @@ variable "max_node_count" {
   type        = string
 }
 
+variable "location_policy" {
+  type        = string
+  description = "Location policy specifies the algorithm used when scaling-up the node pool."
+}
+
 variable "service_account_email" {
   description = "The service account email to use for this node pool."
   type        = string
@@ -113,5 +118,19 @@ variable "taint" {
 variable "node_locations" {
   type        = list(string)
   description = "List of zones in the cluster's region to start worker nodes in. Defaults to cluster's node locations."
+  default     = null
+}
+
+variable "guest_accelerator" {
+  type = object({
+    type               = string
+    count              = number
+    gpu_partition_size = optional(string)
+    gpu_sharing_config = optional(object({
+      gpu_sharing_strategy       = string
+      max_shared_clients_per_gpu = number
+    }))
+  })
+  description = "`guest_accelerator` block supports during node_group creation, useful to provision GPU-capable nodes. Default to `null` or `{}` which will disable GPUs."
   default     = null
 }

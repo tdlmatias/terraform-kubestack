@@ -7,8 +7,9 @@ resource "google_container_node_pool" "current" {
   initial_node_count = var.initial_node_count
 
   autoscaling {
-    min_node_count = var.min_node_count
-    max_node_count = var.max_node_count
+    min_node_count  = var.min_node_count
+    max_node_count  = var.max_node_count
+    location_policy = var.location_policy
   }
 
   node_locations = var.node_locations
@@ -34,6 +35,18 @@ resource "google_container_node_pool" "current" {
 
     workload_metadata_config {
       mode = var.node_workload_metadata_config
+    }
+
+    dynamic "guest_accelerator" {
+      # Make sure to generate this only once
+      for_each = var.guest_accelerator == null ? [] : [1]
+
+      content {
+        type               = guest_accelerator.value.type
+        count              = guest_accelerator.value.count
+        gpu_partition_size = guest_accelerator.value.gpu_partition_size
+        gpu_sharing_config = guest_accelerator.value.gpu_sharing_config
+      }
     }
 
     taint = var.taint
