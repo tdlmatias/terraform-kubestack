@@ -3,6 +3,11 @@ variable "project" {
   description = "Project the cluster belongs to."
 }
 
+variable "deletion_protection" {
+  type        = bool
+  description = "Must be set to false to destroy clusters."
+}
+
 variable "metadata_name" {
   type        = string
   description = "Metadata name to use."
@@ -38,9 +43,24 @@ variable "min_master_version" {
   description = "Minimum GKE master version."
 }
 
+variable "release_channel" {
+  type        = string
+  description = "The selected release channel. Accepted values are: UNSPECIFIED, RAPID, REGULAR, STABLE"
+}
+
 variable "daily_maintenance_window_start_time" {
   type        = string
   description = "Start time of the daily maintenance window."
+}
+
+variable "maintenance_exclusions" {
+  type = list(object({
+    start_time     = string
+    end_time       = string
+    exclusion_name = string
+    scope          = string
+  }))
+  description = "List of maintenance exclusion configuration to be set on the cluster."
 }
 
 variable "remove_default_node_pool" {

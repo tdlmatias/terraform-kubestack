@@ -13,6 +13,8 @@ module "cluster" {
 
   project = local.project_id
 
+  deletion_protection = local.deletion_protection
+
   metadata_name   = module.cluster_metadata.name
   metadata_fqdn   = module.cluster_metadata.fqdn
   metadata_tags   = module.cluster_metadata.tags
@@ -22,8 +24,10 @@ module "cluster" {
   node_locations = local.cluster_node_locations
 
   min_master_version = local.cluster_min_master_version
+  release_channel    = local.cluster_release_channel
 
   daily_maintenance_window_start_time = local.cluster_daily_maintenance_window_start_time
+  maintenance_exclusions              = local.cluster_maintenance_exclusions
 
   remove_default_node_pool = local.remove_default_node_pool
 

@@ -49,7 +49,15 @@ resource "google_container_node_pool" "current" {
       }
     }
 
-    taint = var.taint
+    dynamic "taint" {
+      for_each = var.taints == null ? [] : var.taints
+
+      content {
+        key    = taint.value["key"]
+        value  = taint.value["value"]
+        effect = taint.value["effect"]
+      }
+    }
   }
 
   management {

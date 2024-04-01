@@ -17,16 +17,20 @@ locals {
 
   region = local.cfg["region"]
 
+  deletion_protection = lookup(local.cfg, "deletion_protection", null)
+
   cluster_node_locations_lookup = lookup(local.cfg, "cluster_node_locations", "")
   cluster_node_locations        = split(",", local.cluster_node_locations_lookup)
 
   cluster_min_master_version = local.cfg["cluster_min_master_version"]
+  cluster_release_channel    = lookup(local.cfg, "cluster_release_channel", "STABLE")
 
   cluster_daily_maintenance_window_start_time = lookup(
     local.cfg,
     "cluster_daily_maintenance_window_start_time",
     "03:00",
   )
+  cluster_maintenance_exclusions = lookup(local.cfg, "cluster_maintenance_exclusions", [])
 
   remove_default_node_pool = lookup(local.cfg, "remove_default_node_pool", true)
 

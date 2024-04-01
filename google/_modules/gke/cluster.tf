@@ -2,10 +2,16 @@ resource "google_container_cluster" "current" {
   project = var.project
   name    = var.metadata_name
 
+  deletion_protection = var.deletion_protection
+
   location       = var.location
   node_locations = var.node_locations
 
   min_master_version = var.min_master_version
+
+  release_channel {
+    channel = var.release_channel
+  }
 
   remove_default_node_pool = var.remove_default_node_pool
   initial_node_count       = var.initial_node_count
@@ -65,6 +71,20 @@ resource "google_container_cluster" "current" {
   maintenance_policy {
     daily_maintenance_window {
       start_time = var.daily_maintenance_window_start_time
+    }
+
+    dynamic "maintenance_exclusion" {
+      for_each = var.maintenance_exclusions
+
+      content {
+        start_time     = maintenance_exclusion.value.start_time
+        end_time       = maintenance_exclusion.value.end_time
+        exclusion_name = maintenance_exclusion.value.exclusion_name
+
+        exclusion_options {
+          scope = maintenance_exclusion.value.scope
+        }
+      }
     }
   }
 
