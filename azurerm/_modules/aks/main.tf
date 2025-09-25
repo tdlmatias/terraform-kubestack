@@ -9,7 +9,7 @@ resource "azurerm_kubernetes_cluster" "current" {
   dns_prefix                = var.dns_prefix
   sku_tier                  = var.sku_tier
   kubernetes_version        = var.kubernetes_version
-  automatic_channel_upgrade = var.automatic_channel_upgrade
+  automatic_upgrade_channel = var.automatic_channel_upgrade
 
   role_based_access_control_enabled = true
 
@@ -17,7 +17,7 @@ resource "azurerm_kubernetes_cluster" "current" {
     name = var.default_node_pool_name
     type = var.default_node_pool_type
 
-    enable_auto_scaling = var.default_node_pool_enable_auto_scaling
+    auto_scaling_enabled = var.default_node_pool_enable_auto_scaling
 
     # set min and max count only if autoscaling is _enabled_
     min_count = var.default_node_pool_enable_auto_scaling ? var.default_node_pool_min_count : null
@@ -35,15 +35,21 @@ resource "azurerm_kubernetes_cluster" "current" {
     only_critical_addons_enabled = var.default_node_pool_only_critical_addons
 
     zones = var.availability_zones
+
+    upgrade_settings {
+      max_surge                     = var.upgade_settings_max_surge
+      drain_timeout_in_minutes      = var.upgade_settings_drain_timeout_in_minutes
+      node_soak_duration_in_minutes = var.upgade_settings_node_soak_duration_in_minutes
+    }
   }
 
   network_profile {
     network_plugin = var.network_plugin
     network_policy = var.network_policy
 
-    service_cidr       = var.service_cidr
-    dns_service_ip     = var.dns_service_ip
-    pod_cidr           = var.network_plugin == "azure" ? null : var.pod_cidr
+    service_cidr   = var.service_cidr
+    dns_service_ip = var.dns_service_ip
+    pod_cidr       = var.network_plugin == "azure" ? null : var.pod_cidr
   }
 
   dynamic "identity" {
@@ -75,9 +81,13 @@ resource "azurerm_kubernetes_cluster" "current" {
     }
   }
 
-  workload_autoscaler_profile {
+  dynamic "workload_autoscaler_profile" {
+    for_each = var.keda_enabled || var.vertical_pod_autoscaler_enabled ? toset([1]) : toset([])
+
+    content {
       keda_enabled                    = var.keda_enabled
       vertical_pod_autoscaler_enabled = var.vertical_pod_autoscaler_enabled
+    }
   }
 
   tags = var.metadata_labels
